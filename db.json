@@ -1,0 +1,48 @@
+{
+  "resources": [
+    {
+      "name": "Egle ONN",
+      "rid": "Egle ONN",
+      "ipAddress": "Egle ONN",
+      "type": "Device",
+      "status": "2",
+      "dateIn": null,
+      "dateOut": null,
+      "bookingname": null,
+      "bookingemailId": null,
+      "team": null,
+      "id": 1
+    },
+    {
+      "name": "We",
+      "rid": "Egle ONN",
+      "ipAddress": "Egle ONN",
+      "type": "Server",
+      "status": "1",
+      "dateIn": null,
+      "dateOut": null,
+      "bookingname": null,
+      "bookingemailId": null,
+      "team": null,
+      "id": 2
+    }
+  ],
+  "users": [
+    {
+      "name": "Manoj Kumar",
+      "email": "manojkumar@gmail.com",
+      "password": "4551621",
+      "roles": "user",
+      "status": "0",
+      "id": 1
+    },
+    {
+      "name": "Deepu",
+      "email": "deepu@gmail.com",
+      "password": "1234567",
+      "roles": "user",
+      "status": "0",
+      "id": 2
+    }
+  ]
+}
