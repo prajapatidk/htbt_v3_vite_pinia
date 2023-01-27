@@ -1,5 +1,22 @@
 <script setup>
+import { RouterLink, useRouter } from 'vue-router'
+import { reactive, ref, onMounted } from 'vue'
+import { useUserStore } from '../../stores/user'
 
+const router = useRouter()
+const store = useUserStore()
+const activeUserDetail = reactive(store.activeUser)
+
+onMounted(() => {
+  checkActiveUser()
+})
+
+function checkActiveUser () {
+  if (activeUserDetail.length > 0) {
+  } else {
+    router.push('/sign-in')
+  }
+}
 </script>
 
 <template>
@@ -20,17 +37,15 @@
               href="#"
               data-bs-toggle="dropdown"
             >
-              <img
-                src="../../assets/img/deepak.webp"
-                alt="Profile"
-                class="rounded-circle"
-              />
-              <span class="d-none d-md-block dropdown-toggle ps-2"
-                >Deepak Kumar</span
+              <i class="bi bi-person-circle" style="font-size: 20px"></i>
+              <span
+                class="d-none d-md-block ps-2"
+                v-if="activeUserDetail.length"
+                >{{ activeUserDetail[0].name }}</span
               >
             </a>
 
-            <ul
+            <!-- <ul
               class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile"
             >
               <li class="dropdown-header">
@@ -89,7 +104,7 @@
                   <span>Sign Out</span>
                 </router-link>
               </li>
-            </ul>
+            </ul> -->
           </li>
         </ul>
       </nav>
@@ -105,7 +120,10 @@
 
         <li class="nav-heading">Pages</li>
 
-        <li class="nav-item">
+        <li
+          class="nav-item"
+          v-if="activeUserDetail.length && activeUserDetail[0].roles == 'admin'"
+        >
           <router-link to="/users" class="nav-link collapsed">
             <i class="bi bi-people"></i>
             <span>Users</span>

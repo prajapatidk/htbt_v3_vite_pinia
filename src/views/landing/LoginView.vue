@@ -1,5 +1,67 @@
 <script setup>
-import { RouterLink, RouterView } from "vue-router";
+import validateLogin from '@/validation/validateLogin'
+import { RouterLink, useRouter } from 'vue-router'
+import { reactive, ref, onMounted } from 'vue'
+import { useUserStore } from '../../stores/user'
+import axios from 'axios'
+
+const store = useUserStore()
+const router = useRouter()
+let errorsMsg = ref({})
+const activeUser = localStorage.length
+
+const form = reactive({
+  email: '',
+  password: ''
+})
+
+onMounted(() => {
+  checkActiveUser()
+})
+
+
+function checkActiveUser () {
+  // if(activeUser > 0){
+  //   router.push('/')
+  // }
+}
+
+
+async function loginUser () {
+  try {
+    const { isInvalid, errors } = await validateLogin(form)
+    if (isInvalid) {
+      errorsMsg.value = errors
+    } else {
+      await axios
+        .get(
+          `http://localhost:3000/users?email=${form.email}&password=${form.password}`
+        )
+        .then(res => {
+          errorsMsg.value = {}
+          // let authenticateUser = {
+          //   id: res.data[0]['id'],
+          //   name: res.data[0]['name'],
+          //   email: res.data[0]['email'],
+          //   roles: res.data[0]['roles']
+          // }
+          // localStorage.setItem('activeUser', JSON.stringify(authenticateUser))
+          store.userLogin(res.data)
+          router.push('/')
+          clear()
+        })
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+function clear () {
+  form.email = ''
+  form.password = ''
+}
+
+// http://localhost:3000/users?email=anshu@gmail.com&password=123456
 </script>
 
 <template>
@@ -11,6 +73,7 @@ import { RouterLink, RouterView } from "vue-router";
         <div class="container">
           <div class="row justify-content-center">
             <div
+              style="min-width: 432px"
               class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center"
             >
               <div class="d-flex justify-content-center py-4">
@@ -34,25 +97,22 @@ import { RouterLink, RouterView } from "vue-router";
                     </p>
                   </div>
 
-                  <form class="row g-3 needs-validation" novalidate="">
+                  <form
+                    class="row g-3 needs-validation"
+                    @submit.prevent="loginUser"
+                  >
                     <div class="col-12">
                       <label for="yourUsername" class="form-label"
                         >Username</label
                       >
-                      <div class="input-group has-validation">
-                        <span class="input-group-text" id="inputGroupPrepend"
-                          >@</span
-                        >
-                        <input
-                          type="text"
-                          name="username"
-                          class="form-control"
-                          id="yourUsername"
-                          required=""
-                        />
-                        <div class="invalid-feedback">
-                          Please enter your username.
-                        </div>
+                      <input
+                        type="text"
+                        class="form-control"
+                        :class="`${errorsMsg.email ? 'is-invalid' : ''}`"
+                        v-model="form.email"
+                      />
+                      <div class="invalid-feedback">
+                        {{ errorsMsg.email }}
                       </div>
                     </div>
 
@@ -62,13 +122,12 @@ import { RouterLink, RouterView } from "vue-router";
                       >
                       <input
                         type="password"
-                        name="password"
                         class="form-control"
-                        id="yourPassword"
-                        required=""
+                        :class="`${errorsMsg.password ? 'is-invalid' : ''}`"
+                        v-model="form.password"
                       />
                       <div class="invalid-feedback">
-                        Please enter your password!
+                        {{ errorsMsg.password }}
                       </div>
                     </div>
 

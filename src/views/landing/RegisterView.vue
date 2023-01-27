@@ -1,4 +1,5 @@
 <script setup>
+import validateRegister from '@/validation/validateRegister'
 import { RouterLink, RouterView } from 'vue-router'
 import { reactive, ref, onMounted } from 'vue'
 import { useUserStore } from '../../stores/user'
@@ -6,25 +7,36 @@ import { useUserStore } from '../../stores/user'
 const store = useUserStore()
 
 const form = reactive({
-  name: null,
-  email: null,
-  password: null,
+  name: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
   roles: 'user',
   status: 0
 })
 
+let errorsMsg = ref({})
+
 async function submitUser () {
-  if (!form.name || !form.email || !form.password) {
-    return alert('Please enter the all fields')
+  try {
+    const { isInvalid, errors } = await validateRegister(form)
+    if (isInvalid) {
+      errorsMsg.value = errors
+    } else {
+      errorsMsg.value = {}
+      await store.adduser(form)
+      clear()
+    }
+  } catch (err) {
+    console.log(err)
   }
-  await store.adduser(form)
-  clear()
 }
 
 function clear () {
-  form.name = null
-  form.email = null
-  form.password = null
+  form.name = ''
+  form.email = ''
+  form.password = ''
+  form.confirmPassword = ''
 }
 </script>
 
@@ -37,6 +49,7 @@ function clear () {
         <div class="container">
           <div class="row justify-content-center">
             <div
+              style="min-width: 432px"
               class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center"
             >
               <div class="d-flex justify-content-center py-4">
@@ -59,40 +72,43 @@ function clear () {
                       Enter your personal details to create account
                     </p>
                   </div>
-
                   <form
                     class="row g-3 needs-validation"
                     @submit.prevent="submitUser"
                   >
-                    <div class="col-12">
+                    <div class="col-12 mt-1">
                       <label for="yourName" class="form-label">Your Name</label>
                       <input
                         type="text"
                         name="name"
                         class="form-control"
+                        :class="`${errorsMsg.name ? 'is-invalid' : ''}`"
                         v-model="form.name"
+                        placeholder="User Name"
                       />
                       <div class="invalid-feedback">
-                        Please, enter your name!
+                        {{ errorsMsg.name }}
                       </div>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-12 mt-2">
                       <label for="yourEmail" class="form-label"
                         >Your Email</label
                       >
                       <input
-                        type="email"
+                        type="text"
                         name="email"
                         class="form-control"
+                        :class="`${errorsMsg.email ? 'is-invalid' : ''}`"
                         v-model="form.email"
+                        placeholder="Email Id"
                       />
                       <div class="invalid-feedback">
-                        Please enter a valid Email adddress!
+                        {{ errorsMsg.email }}
                       </div>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-12 mt-2">
                       <label for="yourPassword" class="form-label"
                         >Password</label
                       >
@@ -100,12 +116,28 @@ function clear () {
                         type="password"
                         name="password"
                         class="form-control"
-                        id="yourPassword"
-                        required=""
+                        :class="`${errorsMsg.password ? 'is-invalid' : ''}`"
                         v-model="form.password"
+                        placeholder="Password"
                       />
                       <div class="invalid-feedback">
-                        Please enter your password!
+                        {{ errorsMsg.password }}
+                      </div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                      <input
+                        type="password"
+                        name="password"
+                        class="form-control"
+                        :class="`${
+                          errorsMsg.confirmPassword ? 'is-invalid' : ''
+                        }`"
+                        v-model="form.confirmPassword"
+                        placeholder="Confirm Password"
+                      />
+                      <div class="invalid-feedback">
+                        {{ errorsMsg.confirmPassword }}
                       </div>
                     </div>
                     <div class="col-12 mt-4">

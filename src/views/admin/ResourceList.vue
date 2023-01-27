@@ -2,8 +2,23 @@
 import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useResourceStore } from '../../stores/resource'
+import { useUserStore } from '../../stores/user'
 
 const store = useResourceStore()
+const router = useRouter()
+const userStore = useUserStore()
+const activeUserDetail = reactive(userStore.activeUser)
+
+onMounted(() => {
+  checkActiveUser()
+})
+
+function checkActiveUser () {
+  if (activeUserDetail.length > 0) {
+  } else {
+    router.push('/sign-in')
+  }
+}
 
 let routeName = useRouter().currentRoute.value.name
 
@@ -171,11 +186,12 @@ function formOpen () {
         </div>
         <div class="card" v-else>
           <div class="card-body">
-            <div class="d-flex justify-content-end align-items-center pt-3">
+            <div class="d-flex justify-content-end align-items-center pt-4">
               <button
                 class="btn btn-success btn-sm"
                 type="button"
                 @click="formOpen"
+                v-if="activeUserDetail.length && activeUserDetail[0].roles == 'admin'"
               >
                 <i class="bi bi-plus-circle" style="margin-right: 5px"></i>
                 Add Resource
@@ -194,7 +210,7 @@ function formOpen () {
                   <th scope="col">Booked by</th>
                   <th scope="col">Period</th>
                   <th scope="col">Team</th>
-                  <th scope="col">Action</th>
+                  <th scope="col" v-if="activeUserDetail.length && activeUserDetail[0].roles == 'admin'">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -227,7 +243,7 @@ function formOpen () {
                   </td>
                   <td>{{ item.dateIn }} - {{ item.dateOut }}</td>
                   <td>{{ item.team }}</td>
-                  <td>
+                  <td v-if="activeUserDetail.length && activeUserDetail[0].roles == 'admin'">
                     <button
                       type="button"
                       class="btn btn-sm btn-secondary mx-1"
@@ -242,9 +258,6 @@ function formOpen () {
                       @click="deleteResource(item.id)"
                     >
                       <i class="bi bi-trash"></i>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-success mx-1">
-                      <i class="bi bi-eye"></i>
                     </button>
                   </td>
                 </tr>

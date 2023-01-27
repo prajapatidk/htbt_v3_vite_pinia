@@ -7,49 +7,53 @@ export const useResourceStore = defineStore('resources', {
   }),
   actions: {
     async fetchResource () {
-      try {
-        await axios.get('http://localhost:3000/resources').then(response => {
+      const response = await axios
+        .get('http://localhost:3000/resources')
+        .then(response => {
           this.resources = response.data
         })
-      } catch (err) {
-        console.log(err)
-      }
+        .catch(err => {
+          console.log(err)
+        })
+      return response
     },
     async addResource (payload) {
-      try {
-        await axios
-          .post('http://localhost:3000/resources', payload)
-          .then(() => {
-            this.resources.push({
-              ...payload
-            })
+      const response = await axios
+        .post('http://localhost:3000/resources', payload)
+        .then(() => {
+          this.resources.push({
+            ...payload
           })
-      } catch (err) {
-        console.log(err)
-      }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+      return response
     },
     async updateResource (payload, id) {
-      try {
-        await axios
-          .put('http://localhost:3000/resources/' + id, payload)
-          .then(() => {
-            var index = this.resources.findIndex(obj => obj.id == this.editID)
-            this.resources.splice(index, 1, payload)
-          })
-      } catch (err) {
-        console.log(err)
-      }
+      const response = await axios
+        .put('http://localhost:3000/resources/' + id, payload)
+        .then(() => {
+          var index = this.resources.findIndex(obj => obj.id == this.editID)
+          this.resources.splice(index, 1, payload)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+      return response
     },
     async deleteResource (id) {
-      try {
-        await axios.delete(`http://localhost:3000/resources/${id}`).then(() => {
+      const response = await axios
+        .delete(`http://localhost:3000/resources/${id}`)
+        .then(() => {
           this.resources = this.resources.filter(
             ResourceList => ResourceList.id !== id
           )
         })
-      } catch (err) {
-        console.log(err)
-      }
+        .catch(err => {
+          console.log(err)
+        })
+      return response
     }
   }
 })

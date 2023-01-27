@@ -12,36 +12,23 @@
       "bookingemailId": null,
       "team": null,
       "id": 1
-    },
-    {
-      "name": "We",
-      "rid": "Egle ONN",
-      "ipAddress": "Egle ONN",
-      "type": "Server",
-      "status": "1",
-      "dateIn": null,
-      "dateOut": null,
-      "bookingname": null,
-      "bookingemailId": null,
-      "team": null,
-      "id": 2
     }
   ],
   "users": [
     {
-      "name": "Manoj Kumar",
-      "email": "manojkumar@gmail.com",
-      "password": "4551621",
-      "roles": "user",
-      "status": "0",
+      "name": "Deepak Kumar",
+      "email": "deepu@gmail.com",
+      "password": "123456",
+      "roles": "admin",
+      "status": "1",
       "id": 1
     },
     {
-      "name": "Deepu",
-      "email": "deepu@gmail.com",
-      "password": "1234567",
+      "name": "Anshu",
+      "email": "anshu@gmail.com",
+      "password": "123456",
       "roles": "user",
-      "status": "0",
+      "status": "1",
       "id": 2
     }
   ]

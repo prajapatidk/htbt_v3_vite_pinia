@@ -14,7 +14,7 @@ const form = reactive({
   email: null,
   password: null,
   roles: 'user',
-  status: 0
+  status: 1
 })
 
 function clear () {
@@ -46,9 +46,13 @@ async function submitUser () {
   store.fetchUser()
 }
 
-function deleteUser (id) {
-  if (confirm('Do want to delete this user') == true) {
-    store.deleteUser(id)
+async function deleteUser (id) {
+  try {
+    if (confirm('Do want to delete this user') == true) {
+      await store.deleteUser(id)
+    }
+  } catch (err) {
+    console.log(err)
   }
 }
 
@@ -79,7 +83,7 @@ function formOpen () {
           <div class="card-body pb-5">
             <form @submit.prevent="submitUser">
               <div class="row g-3 pt-4">
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <label for="inputName5" class="form-label">Name</label
                   ><input
                     type="text"
@@ -88,7 +92,7 @@ function formOpen () {
                     v-model="form.name"
                   />
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <label for="inputName5" class="form-label">Email</label
                   ><input
                     type="text"
@@ -97,7 +101,7 @@ function formOpen () {
                     v-model="form.email"
                   />
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <label for="inputName5" class="form-label">Password</label
                   ><input
                     type="text"
@@ -118,7 +122,7 @@ function formOpen () {
                     <option value="user">User</option>
                   </select>
                 </div>
-                <div class="col-md-6">
+                <!-- <div class="col-md-6">
                   <label for="inputState" class="form-label">Type</label
                   ><select
                     id="inputState"
@@ -129,7 +133,7 @@ function formOpen () {
                     <option value="1">Enable</option>
                     <option value="0">Disable</option>
                   </select>
-                </div>
+                </div> -->
                 <div class="pt-4">
                   <button type="submit" class="btn btn-primary">
                     {{ !editId ? 'Save' : 'Update' }}
@@ -167,7 +171,7 @@ function formOpen () {
                   <th scope="col">Email</th>
                   <th scope="col">Password</th>
                   <th scope="col">Role</th>
-                  <th scope="col">Status</th>
+                  <!-- <th scope="col">Status</th> -->
                   <th scope="col">Action</th>
                 </tr>
               </thead>
@@ -178,13 +182,13 @@ function formOpen () {
                   <td>{{ item.email }}</td>
                   <td scope="row">{{ item.password }}</td>
                   <td class="text-capitalize">{{ item.roles }}</td>
-                  <td class="text-align-center">
+                  <!-- <td class="text-align-center">
                     <i
                       v-if="item.status == 1"
                       class="bi bi-check-circle-fill text-success"
                     ></i>
                     <i v-else class="bi bi-x-circle-fill text-danger"></i>
-                  </td>
+                  </td> -->
                   <td>
                     <button
                       type="button"
@@ -200,9 +204,6 @@ function formOpen () {
                       @click="deleteUser(item.id)"
                     >
                       <i class="bi bi-trash"></i>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-success mx-1">
-                      <i class="bi bi-eye"></i>
                     </button>
                   </td>
                 </tr>
