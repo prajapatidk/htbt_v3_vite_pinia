@@ -5,6 +5,7 @@ import AdminLayout from "../views/admin/AdminLayout.vue";
 import DashboardView from "../views/admin/DashboardView.vue";
 import ResourceList from "../views/admin/ResourceList.vue";
 import UserList from "../views/admin/UserList.vue";
+import ProfileView from "../views/admin/ProfileView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,13 +25,13 @@ const router = createRouter({
       name: "Admin",
       component: AdminLayout,
       children: [
+        // {
+        //   path: "",
+        //   name: "Dashboard",
+        //   component: DashboardView,
+        // },
         {
-          path: "",
-          name: "Dashboard",
-          component: DashboardView,
-        },
-        {
-          path: "/resources",
+          path: "/",
           name: "Resources",
           component: ResourceList,
         },
@@ -38,6 +39,11 @@ const router = createRouter({
           path: "/users",
           name: "Users",
           component: UserList,
+        },
+        {
+          path: "/profile",
+          name: "Profile",
+          component: ProfileView,
         },
       ],
     },

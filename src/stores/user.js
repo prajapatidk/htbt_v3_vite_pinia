@@ -1,61 +1,46 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { avoidHeader } from '@/utils/constant'
 
 export const useUserStore = defineStore('users', {
   state: () => ({
     users: [],
-    activeUser: {}
+    activeUserDetail: {}
   }),
   actions: {
     async fetchUser () {
-      const response = await axios
-        .get('http://localhost:3000/users')
-        .then(response => {
-          this.users = response.data
-        })
-        .catch(err => {
-          // console.log(err)
-        })
+      const response = await axios.get('user')
+      if (response) {
+        this.users = response.data
+      }
       return response
     },
-    async adduser (payload) {
-      const response = await axios
-        .post('http://localhost:3000/users', payload)
-        .then(() => {
-          this.users.push({
-            ...payload
-          })
-        })
-        .catch(err => {
-          console.log(err)
-        })
+
+    async addUser (payload) {
+      const response = await axios.post('register', payload, avoidHeader)
       return response
     },
+
     async updateUser (payload, id) {
-      const response = await axios
-        .put('http://localhost:3000/users/' + id, payload)
-        .then(() => {
-          var index = this.users.findIndex(obj => obj.id == this.editID)
-          this.users.splice(index, 1, payload)
-        })
-        .catch(err => {
-          // console.log(err)
-        })
+      const response = await axios.put('user/' + id, payload)
+      if (response) {
+        this.fetchUser()
+      }
       return response
     },
+
     async deleteUser (id) {
-      const response = await axios
-        .delete(`http://localhost:3000/users/${id}`)
-        .then(() => {
-          this.users = this.users.filter(UsersList => UsersList.id !== id)
-        })
-        .catch(err => {
-          throw err.message
-        })
+      const response = await axios.delete(`user/${id}`)
+      if (response) {
+        this.fetchUser()
+      }
       return response
     },
-    async userLogin (activeUser) {
-      this.activeUser = activeUser
+
+    async activeUser () {
+      const response = await axios.get('userloggedin')
+      this.activeUserDetail = response.data
+      return response
     }
   }
 })

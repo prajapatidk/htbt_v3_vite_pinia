@@ -1,64 +1,26 @@
 <script setup>
-import { useRouter } from 'vue-router'
 import validateRegister from '@/validation/validateRegister'
 import { reactive, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '../../stores/user'
+import { useResourceStore } from '../../stores/resource'
 
-let store = useUserStore()
-let router = useRouter()
-let userDetail = ref({})
+const userStore = useUserStore()
+const resourceStore = useResourceStore()
 let errorsMsg = ref({})
 let serverMsg = reactive({ type: '', msg: '' })
 let mode = ref(false)
 let editId = ref(null)
 
-let form = reactive({
-  username: '',
-  email: '',
-  password: '',
-  confirmPassword: ''
-})
-
 onMounted(() => {
-  store.fetchUser()
-  checkActiveUser()
+  userStore.fetchUser()
+  resourceStore.assignedResource()
 })
 
-let checkActiveUser = async () => {
-  await store.activeUser()
-  userDetail.value = store.activeUserDetail
-  if (userDetail.value.roles == 'USER') {
-    return router.push('/')
-  }
-}
-
-let submitUser = async () => {
+const removeResource = async id => {
   try {
-    let { isInvalid, errors } = await validateRegister(form)
-    if (isInvalid) {
-      return (errorsMsg.value = errors)
-    }
-    errorsMsg.value = {}
-
-    if (editId.value != null) {
-      let result = await store.updateUser(form, editId.value)
-      if (result) {
-        serverMsg = {
-          type: 'success',
-          msg: 'User updated successfully'
-        }
-      }
-      editId.value = null
-      formOpen()
-    } else {
-      let result = await store.addUser(form)
-      if (result) {
-        serverMsg = {
-          type: 'success',
-          msg: 'User created successfully'
-        }
-      }
-      formOpen()
+    if (confirm('Do want to release the resource') == true) {
+      const result = await resourceStore.releaseResource(id)
     }
   } catch (err) {
     serverMsg = {
@@ -66,47 +28,6 @@ let submitUser = async () => {
       msg: err.response.data.message
     }
   }
-}
-
-let deleteUser = async id => {
-  try {
-    if (confirm('Do want to delete this user') == true) {
-      let result = await store.deleteUser(id)
-      console.log(result)
-      if (result.status == 204) {
-        serverMsg = {
-          type: 'success',
-          msg: 'User removed successfully'
-        }
-      }
-    }
-  } catch (err) {
-    serverMsg = {
-      type: 'failed',
-      msg: err.response.data.message
-    }
-  }
-}
-
-let editUser = async id => {
-  formOpen()
-  editId.value = id
-  let result = store.users.find(res => res.id === id)
-  form.username = result.username
-  form.email = result.email
-}
-
-let formOpen = () => {
-  mode.value = !mode.value
-  errorsMsg.value = {}
-  clear()
-}
-
-let clear = () => {
-  form.username = ''
-  form.email = ''
-  form.password = ''
-  form.confirmPassword = ''
 }
 </script>
 
@@ -122,7 +43,7 @@ let clear = () => {
       {{ serverMsg.msg }}
     </p>
   </div>
-  <section class="section">
+  <section class="section profile">
     <div class="row">
       <div class="col-lg-12" style="min-height: calc(100vh - 125px)">
         <div class="card">
@@ -206,58 +127,66 @@ let clear = () => {
             </form>
           </div>
           <div class="card-body" v-else>
-            <div class="d-flex align-items-center py-3">
-              <button
-                class="btn btn-success btn-sm"
-                type="button"
-                @click="formOpen"
-              >
-                <i class="bi bi-plus-circle" style="margin-right: 5px"></i>
-                Add User
-              </button>
+            <div
+              class="tab-pane fade show active profile-overview"
+              id="profile-overview"
+            >
+              <h5 class="card-title">Profile Details</h5>
+
+              <div class="row">
+                <div class="col-lg-3 col-md-4 label">Name</div>
+                <div class="col-lg-9 col-md-8">
+                  {{ userStore.activeUserDetail.username }}
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-3 col-md-4 label">Email</div>
+                <div class="col-lg-9 col-md-8">
+                  {{ userStore.activeUserDetail.email }}
+                </div>
+              </div>
             </div>
+            <!-- End Table with stripped rows -->
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Booked Resources</h5>
+
             <!-- Table with stripped rows -->
-            <table class="table table-striped" style="vertical-align: middle">
+            <table class="table table-striped">
               <thead>
                 <tr>
                   <th scope="col">#</th>
                   <th scope="col">Name</th>
-                  <th scope="col">Email</th>
-                  <th scope="col">Role</th>
-                  <th scope="col">Action</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">IP Address</th>
+                  <th scope="col">Release Device</th>
                 </tr>
               </thead>
               <tbody>
                 <tr
-                  v-for="(item, index) in store.users"
-                  :key="item.id"
-                  v-if="store.users.length > 0"
+                  v-for="(item, index) in resourceStore.assignedResourceItems"
+                  :key="index"
+                  v-if="resourceStore.assignedResourceItems.length > 0"
                 >
-                  <td>{{ index + 1 }}</td>
-                  <td>{{ item.username }}</td>
-                  <td>{{ item.email }}</td>
-                  <td class="text-capitalize">{{ item.roles }}</td>
+                  <th scope="row">1</th>
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.type }}</td>
+                  <td>{{ item.ipAddress }}</td>
                   <td>
-                    <!-- <button
-                      type="button"
-                      class="btn btn-sm btn-secondary mx-1"
-                      @click="editUser(item.id)"
-                      :title="item.id"
-                    >
-                      <i class="bi bi-pencil-fill"></i>
-                    </button> -->
                     <button
-                      v-if="item.roles != 'ADMIN'"
+                      v-on:click="removeResource(item.id)"
                       type="button"
                       class="btn btn-sm btn-danger mx-1"
-                      @click="deleteUser(item.id)"
                     >
                       <i class="bi bi-trash"></i>
                     </button>
                   </td>
                 </tr>
                 <tr v-else>
-                  <td align="center" colspan="10">No data available</td>
+                  <td align="center" colspan="5">No Resources Assigned</td>
                 </tr>
               </tbody>
             </table>

@@ -1,39 +1,50 @@
 <script setup>
 import validateRegister from '@/validation/validateRegister'
-import { RouterLink, RouterView } from 'vue-router'
-import { reactive, ref, onMounted } from 'vue'
-import { useUserStore } from '../../stores/user'
+import { RouterLink } from 'vue-router'
+import { reactive, ref } from 'vue'
+import { useUserStore } from '@/stores/user'
 
-const store = useUserStore()
+// Access the store
+let store = useUserStore()
 
-const form = reactive({
-  name: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-  roles: 'user',
-  status: 0
+// assign variables
+let errorsMsg = ref({})
+let responseMsg = ref({})
+
+// create form object
+let form = reactive({
+  username: 'deepu kumar',
+  email: 'deepu@gmail.com',
+  password: '1234',
+  confirmPassword: '1234'
 })
 
-let errorsMsg = ref({})
-
-async function submitUser () {
+// Register new user
+let registerUser = async () => {
   try {
-    const { isInvalid, errors } = await validateRegister(form)
+    let { isInvalid, errors } = await validateRegister(form)
     if (isInvalid) {
-      errorsMsg.value = errors
-    } else {
-      errorsMsg.value = {}
-      await store.adduser(form)
-      clear()
+      return (errorsMsg.value = errors)
+    }
+    errorsMsg.value = {}
+
+    let result = await store.addUser(form)
+    clear()
+    responseMsg = {
+      type: 'success',
+      msg: result.data
     }
   } catch (err) {
-    console.log(err)
+    responseMsg.value = {
+      type: 'failed',
+      msg: err.response.data.message
+    }
   }
 }
 
-function clear () {
-  form.name = ''
+// Clear the filled inputs
+let clear = () => {
+  form.username = ''
   form.email = ''
   form.password = ''
   form.confirmPassword = ''
@@ -74,7 +85,7 @@ function clear () {
                   </div>
                   <form
                     class="row g-3 needs-validation"
-                    @submit.prevent="submitUser"
+                    @submit.prevent="registerUser"
                   >
                     <div class="col-12 mt-1">
                       <label for="yourName" class="form-label">Your Name</label>
@@ -82,12 +93,12 @@ function clear () {
                         type="text"
                         name="name"
                         class="form-control"
-                        :class="`${errorsMsg.name ? 'is-invalid' : ''}`"
-                        v-model="form.name"
+                        :class="`${errorsMsg.username ? 'is-invalid' : ''}`"
+                        v-model="form.username"
                         placeholder="User Name"
                       />
                       <div class="invalid-feedback">
-                        {{ errorsMsg.name }}
+                        {{ errorsMsg.username }}
                       </div>
                     </div>
 
@@ -145,6 +156,16 @@ function clear () {
                         Create Account
                       </button>
                     </div>
+                    <p
+                      class="mt-2 mb-0"
+                      :class="
+                        responseMsg.type == 'success'
+                          ? 'text-success'
+                          : 'text-danger'
+                      "
+                    >
+                      {{ responseMsg.msg }}
+                    </p>
                     <div class="col-12">
                       <p class="small mb-0">
                         <router-link to="/sign-in">

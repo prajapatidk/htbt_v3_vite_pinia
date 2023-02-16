@@ -3,10 +3,10 @@ import validator from 'validator'
 const validateRegister = data => {
   let errors = {}
 
-  const { name, email, password, confirmPassword } = data
+  const { username, email, password, confirmPassword } = data
 
-  if (validator.isEmpty(name)) {
-    errors.name = 'Name field is required.'
+  if (validator.isEmpty(username)) {
+    errors.username = 'Name field is required.'
   }
 
   if (validator.isEmpty(email)) {
@@ -14,7 +14,7 @@ const validateRegister = data => {
   }
 
   if (!validator.isEmail(email)) {
-    errors.email = 'Please enter a valid Email address.'
+    errors.email = 'Please enter a valid email address.'
   }
 
   if (validator.isEmpty(password)) {

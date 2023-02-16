@@ -2,66 +2,63 @@
 import validateLogin from '@/validation/validateLogin'
 import { RouterLink, useRouter } from 'vue-router'
 import { reactive, ref, onMounted } from 'vue'
-import { useUserStore } from '../../stores/user'
 import axios from 'axios'
+import { avoidHeader } from '@/utils/constant'
 
-const store = useUserStore()
+// Access the stores
 const router = useRouter()
-let errorsMsg = ref({})
-const activeUser = localStorage.length
 
-const form = reactive({
+// Declare the variable
+let errorsMsg = ref({})
+let responseMsg = ref({})
+let form = reactive({
   email: '',
   password: ''
 })
 
-onMounted(() => {
-  checkActiveUser()
+// Mount functiion
+onMounted(async () => {
+  await checkActiveUser()
 })
 
-
-function checkActiveUser () {
-  // if(activeUser > 0){
-  //   router.push('/')
-  // }
-}
-
-
-async function loginUser () {
-  try {
-    const { isInvalid, errors } = await validateLogin(form)
-    if (isInvalid) {
-      errorsMsg.value = errors
-    } else {
-      await axios
-        .get(
-          `http://localhost:3000/users?email=${form.email}&password=${form.password}`
-        )
-        .then(res => {
-          errorsMsg.value = {}
-          // let authenticateUser = {
-          //   id: res.data[0]['id'],
-          //   name: res.data[0]['name'],
-          //   email: res.data[0]['email'],
-          //   roles: res.data[0]['roles']
-          // }
-          // localStorage.setItem('activeUser', JSON.stringify(authenticateUser))
-          store.userLogin(res.data)
-          router.push('/')
-          clear()
-        })
-    }
-  } catch (err) {
-    console.log(err)
+// Check if user already logged in the move to dashboard page
+let checkActiveUser = async () => {
+  if (localStorage.hasOwnProperty('token')) {
+    return router.push('/')
   }
 }
 
-function clear () {
+// Login authentication of the user
+async function loginUser () {
+  try {
+    let { isInvalid, errors } = await validateLogin(form)
+    if (isInvalid) {
+      return (errorsMsg.value = errors)
+    }
+    errorsMsg.value = {}
+
+    let response = await axios.post(
+      'http://localhost:7788/login',
+      form,
+      avoidHeader
+    )
+    localStorage.setItem('token', response.data.jwtToken)
+    // router.push('/')
+    window.location = '/'
+    clear()
+  } catch (err) {
+    responseMsg.value = {
+      type: 'failed',
+      msg: err.response.data.message
+    }
+  }
+}
+
+// Clear the filled inputs
+let clear = () => {
   form.email = ''
   form.password = ''
 }
-
-// http://localhost:3000/users?email=anshu@gmail.com&password=123456
 </script>
 
 <template>
@@ -150,6 +147,16 @@ function clear () {
                         Login
                       </button>
                     </div>
+                    <p
+                      class="mt-2 mb-0"
+                      :class="
+                        responseMsg.type == 'success'
+                          ? 'text-success'
+                          : 'text-danger'
+                      "
+                    >
+                      {{ responseMsg.msg }}
+                    </p>
                     <div class="col-12">
                       <p class="small mb-0">
                         Don't have account?

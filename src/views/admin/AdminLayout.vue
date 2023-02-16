@@ -1,26 +1,36 @@
 <script setup>
 import { RouterLink, useRouter } from 'vue-router'
-import { reactive, ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useUserStore } from '../../stores/user'
 
-const router = useRouter()
-const store = useUserStore()
-const activeUserDetail = reactive(store.activeUser)
+let router = useRouter()
+let store = useUserStore()
+let userDetail = ref({})
 
 onMounted(() => {
   checkActiveUser()
 })
 
-function checkActiveUser () {
-  if (activeUserDetail.length > 0) {
-  } else {
-    router.push('/sign-in')
+let checkActiveUser = async () => {
+  try {
+    if (!localStorage.hasOwnProperty('token')) {
+      return router.push('/sign-in')
+    }
+    await store.activeUser()
+    userDetail.value = store.activeUserDetail
+  } catch (err) {
+    console.log(err)
   }
+}
+
+let logOut = () => {
+  localStorage.removeItem('token')
+  router.push('/sign-in')
 }
 </script>
 
 <template>
-  <div>
+  <div class="admin_layout">
     <header id="header" class="header fixed-top d-flex align-items-center">
       <div class="d-flex align-items-center justify-content-between">
         <a href="index.html" class="logo d-flex align-items-center">
@@ -38,25 +48,15 @@ function checkActiveUser () {
               data-bs-toggle="dropdown"
             >
               <i class="bi bi-person-circle" style="font-size: 20px"></i>
-              <span
-                class="d-none d-md-block ps-2"
-                v-if="activeUserDetail.length"
-                >{{ activeUserDetail[0].name }}</span
-              >
+              <span class="d-none d-md-block ps-2">{{
+                userDetail.username
+              }}</span>
             </a>
 
-            <!-- <ul
+            <ul
               class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile"
             >
-              <li class="dropdown-header">
-                <h6>Kevin Anderson</h6>
-                <span>Web Designer</span>
-              </li>
-              <li>
-                <hr class="dropdown-divider" />
-              </li>
-
-              <li>
+              <!-- <li>
                 <a
                   class="dropdown-item d-flex align-items-center"
                   href="users-profile.html"
@@ -65,65 +65,45 @@ function checkActiveUser () {
                   <span>My Profile</span>
                 </a>
               </li>
+
               <li>
                 <hr class="dropdown-divider" />
-              </li>
+              </li> -->
 
               <li>
                 <a
                   class="dropdown-item d-flex align-items-center"
-                  href="users-profile.html"
-                >
-                  <i class="bi bi-gear"></i>
-                  <span>Account Settings</span>
-                </a>
-              </li>
-              <li>
-                <hr class="dropdown-divider" />
-              </li>
-
-              <li>
-                <a
-                  class="dropdown-item d-flex align-items-center"
-                  href="pages-faq.html"
-                >
-                  <i class="bi bi-question-circle"></i>
-                  <span>Need Help?</span>
-                </a>
-              </li>
-              <li>
-                <hr class="dropdown-divider" />
-              </li>
-
-              <li>
-                <router-link
-                  class="dropdown-item d-flex align-items-center"
-                  to="/sign-in"
+                  v-on:click="logOut"
+                  href="javascript:;"
                 >
                   <i class="bi bi-box-arrow-right"></i>
                   <span>Sign Out</span>
-                </router-link>
+                </a>
               </li>
-            </ul> -->
+            </ul>
           </li>
         </ul>
       </nav>
     </header>
     <aside id="sidebar" class="sidebar">
       <ul class="sidebar-nav" id="sidebar-nav">
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <router-link to="/" class="nav-link collapsed">
             <i class="bi bi-grid"></i>
             <span>Dashboard</span>
           </router-link>
-        </li>
+        </li> -->
 
+        <li class="nav-item">
+          <router-link to="/" class="nav-link collapsed">
+            <i class="bi bi-tools"></i>
+            <span>Resources</span>
+          </router-link>
+        </li>
         <li class="nav-heading">Pages</li>
 
-        <li
-          class="nav-item"
-          v-if="activeUserDetail.length && activeUserDetail[0].roles == 'admin'"
-        >
+        <!-- v-if="activeUserDetail.length && activeUserDetail[0].roles == 'admin'" -->
+        <li class="nav-item" v-if="userDetail.roles =='ADMIN'">
           <router-link to="/users" class="nav-link collapsed">
             <i class="bi bi-people"></i>
             <span>Users</span>
@@ -131,11 +111,12 @@ function checkActiveUser () {
         </li>
 
         <li class="nav-item">
-          <router-link to="/resources" class="nav-link collapsed">
-            <i class="bi bi-tools"></i>
-            <span>Resources</span>
+          <router-link to="/profile" class="nav-link collapsed">
+            <i class="bi bi-person"></i>
+            <span>Profile</span>
           </router-link>
         </li>
+
         <!-- End Profile Page Nav -->
       </ul>
     </aside>
@@ -149,19 +130,6 @@ function checkActiveUser () {
     <!-- End #main -->
 
     <!-- ======= Footer ======= -->
-    <footer id="footer" class="footer">
-      <div class="copyright">
-        &copy; Copyright <strong><span>NiceAdmin</span></strong
-        >. All Rights Reserved
-      </div>
-      <div class="credits">
-        <!-- All the links in the footer should remain intact. -->
-        <!-- You can delete the links only if you purchased the pro version. -->
-        <!-- Licensing information: https://bootstrapmade.com/license/ -->
-        <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
-      </div>
-    </footer>
     <!-- End Footer -->
     <a
       href="#"
@@ -170,3 +138,10 @@ function checkActiveUser () {
     ></a>
   </div>
 </template>
+<style>
+.admin_layout {
+  font-family: 'Open Sans', sans-serif;
+  background: #f6f9ff;
+  color: #444444;
+}
+</style>
