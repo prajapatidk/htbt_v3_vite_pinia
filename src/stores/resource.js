@@ -4,30 +4,54 @@ import { token } from '../utils/localStorage'
 
 export const useResourceStore = defineStore('resources', {
   state: () => ({
+    itemDetails: [],
     resources: [],
+    draftResources: [],
     assignedResourceItems: []
   }),
   actions: {
-    async fetchResource () {
-      const response = await axios
-        .get('resource', token)
-        .then(response => (this.resources = response.data))
+    async fetchAll () {
+      const response = await axios.get('resource', token)
+      this.resources = response.data.filter(s => s.status != 0)
 
+      return response
+    },
+
+    async fetchAlldraft () {
+      const response = await axios.get('resource', token)
+      this.draftResources = response.data.filter(s => s.status == 0)
+      return response
+    },
+
+    async itemDetails (id) {
+      const response = await axios.get(`resource/${id}`, token)
+      if (response) {
+        this.itemDetails = response.data
+        this.fetchAll()
+      }
       return response
     },
 
     async addResource (payload) {
       const response = await axios.post('resource', payload, token)
       if (response) {
-        this.fetchResource()
+        this.fetchAll()
       }
       return response
     },
 
     async updateResource (payload, id) {
-      const response = await axios.put('resource/' + id, payload, token)
+      const response = await axios.put(`resource/${id}`, payload, token)
       if (response) {
-        this.fetchResource()
+        this.fetchAll()
+      }
+      return response
+    },
+
+    async restoreResource (id) {
+      const response = await axios.put(`restoreresource/${id}`, token)
+      if (response) {
+        this.fetchAlldraft()
       }
       return response
     },
@@ -35,7 +59,7 @@ export const useResourceStore = defineStore('resources', {
     async deleteResource (id) {
       const response = await axios.delete(`resource/${id}`, token)
       if (response) {
-        this.fetchResource()
+        this.fetchAll()
       }
       return response
     },
@@ -43,7 +67,7 @@ export const useResourceStore = defineStore('resources', {
     async bookResource (payload, id) {
       const response = await axios.put(`bresource/${id}`, payload, token)
       if (response) {
-        this.fetchResource()
+        this.fetchAll()
       }
       return response
     },

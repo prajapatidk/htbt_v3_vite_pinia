@@ -4,6 +4,7 @@ import RegisterView from "../views/landing/RegisterView.vue";
 import AdminLayout from "../views/admin/AdminLayout.vue";
 import DashboardView from "../views/admin/DashboardView.vue";
 import ResourceList from "../views/admin/ResourceList.vue";
+import DraftResource from "../views/admin/DraftResource.vue";
 import UserList from "../views/admin/UserList.vue";
 import ProfileView from "../views/admin/ProfileView.vue";
 
@@ -44,6 +45,11 @@ const router = createRouter({
           path: "/profile",
           name: "Profile",
           component: ProfileView,
+        },
+        {
+          path: "/draft-resources",
+          name: "Draft",
+          component: DraftResource,
         },
       ],
     },

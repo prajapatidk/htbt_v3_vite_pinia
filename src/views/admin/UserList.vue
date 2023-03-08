@@ -3,7 +3,9 @@ import { useRouter } from 'vue-router'
 import validateRegister from '@/validation/validateRegister'
 import { reactive, ref, onMounted } from 'vue'
 import { useUserStore } from '../../stores/user'
+import { roles } from '@/utils/constant'
 
+let routeName = useRouter().currentRoute.value.name
 let store = useUserStore()
 let router = useRouter()
 let userDetail = ref({})
@@ -15,6 +17,7 @@ let editId = ref(null)
 let form = reactive({
   username: '',
   email: '',
+  roles: '',
   password: '',
   confirmPassword: ''
 })
@@ -49,7 +52,6 @@ let submitUser = async () => {
         }
       }
       editId.value = null
-      formOpen()
     } else {
       let result = await store.addUser(form)
       if (result) {
@@ -58,8 +60,8 @@ let submitUser = async () => {
           msg: 'User created successfully'
         }
       }
-      formOpen()
     }
+    formOpen()
   } catch (err) {
     serverMsg = {
       type: 'failed',
@@ -94,6 +96,9 @@ let editUser = async id => {
   let result = store.users.find(res => res.id === id)
   form.username = result.username
   form.email = result.email
+  form.roles = result.roles
+  form.password = '****'
+  form.confirmPassword = '****'
 }
 
 let formOpen = () => {
@@ -103,20 +108,20 @@ let formOpen = () => {
 }
 
 let clear = () => {
+  editId.value = null
   form.username = ''
   form.email = ''
+  form.roles = ''
   form.password = ''
   form.confirmPassword = ''
 }
 </script>
 
 <template>
-  <div
-    class="d-flex justify-content-between pagetitle pb-2"
-    style="height: 32px"
-  >
+  <div class="d-flex align-items-center pagetitle pb-2" style="height: 32px">
+    <h1>Manage {{ routeName }}</h1>
     <p
-      class="m-0"
+      class="m-0 mt-1 mx-3 text-success"
       :class="serverMsg.type == 'success' ? 'text-success' : 'text-danger'"
     >
       {{ serverMsg.msg }}
@@ -159,7 +164,29 @@ let clear = () => {
                   </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-6" v-if="editId != null">
+                  <label class="form-label">Roles</label>
+
+                  <select
+                    class="form-select"
+                    :class="`${errorsMsg.roles ? 'is-invalid' : ''}`"
+                    v-model="form.roles"
+                  >
+                    <option disabled>Choose...</option>
+                    <option
+                      v-for="(item, index) in roles"
+                      :key="index"
+                      :value="item"
+                    >
+                      {{ item }}
+                    </option>
+                  </select>
+                  <div class="invalid-feedback">
+                    {{ errorsMsg.roles }}
+                  </div>
+                </div>
+
+                <div class="col-md-6" v-if="editId == null">
                   <label for="yourPassword" class="form-label">Password</label>
                   <input
                     type="password"
@@ -174,7 +201,7 @@ let clear = () => {
                   </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-6" v-if="editId == null">
                   <label for="yourPassword" class="form-label"
                     >Confirm password</label
                   >
@@ -196,7 +223,7 @@ let clear = () => {
                     class="btn btn-secondary"
                     @click="formOpen"
                   >
-                    Cencel
+                    Cancel
                   </button>
                   <button type="submit" class="btn btn-primary ms-3">
                     {{ !editId ? 'Save' : 'Update' }}
@@ -234,18 +261,18 @@ let clear = () => {
                   v-if="store.users.length > 0"
                 >
                   <td>{{ index + 1 }}</td>
-                  <td>{{ item.username }}</td>
+                  <td class="text-capitalize">{{ item.username }}</td>
                   <td>{{ item.email }}</td>
                   <td class="text-capitalize">{{ item.roles }}</td>
                   <td>
-                    <!-- <button
+                    <button
                       type="button"
                       class="btn btn-sm btn-secondary mx-1"
                       @click="editUser(item.id)"
                       :title="item.id"
                     >
                       <i class="bi bi-pencil-fill"></i>
-                    </button> -->
+                    </button>
                     <button
                       v-if="item.roles != 'ADMIN'"
                       type="button"

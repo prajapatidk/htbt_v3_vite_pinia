@@ -9,36 +9,50 @@ let store = useUserStore()
 
 // assign variables
 let errorsMsg = ref({})
+let emailMsg = ref()
 let responseMsg = ref({})
+let disabledEvent = ref(false)
 
 // create form object
 let form = reactive({
-  username: 'deepu kumar',
-  email: 'deepu@gmail.com',
-  password: '1234',
-  confirmPassword: '1234'
+  username: '',
+  email: '',
+  password: '',
+  confirmPassword: ''
 })
+
+//Form validation
+// let validateForm = () => {
+//   let { isInvalid, errors } = validateRegister(form)
+//   if (isInvalid) {
+//     return (errorsMsg.value = errors)
+//   }
+//   errorsMsg.value = {}
+// }
 
 // Register new user
 let registerUser = async () => {
   try {
+    validateEmail()
     let { isInvalid, errors } = await validateRegister(form)
     if (isInvalid) {
       return (errorsMsg.value = errors)
     }
     errorsMsg.value = {}
-
+    disabledEvent.value = true
     let result = await store.addUser(form)
     clear()
     responseMsg = {
       type: 'success',
       msg: result.data
     }
+    disabledEvent.value = false
   } catch (err) {
     responseMsg.value = {
       type: 'failed',
       msg: err.response.data.message
     }
+    disabledEvent.value = false
   }
 }
 
@@ -48,6 +62,21 @@ let clear = () => {
   form.email = ''
   form.password = ''
   form.confirmPassword = ''
+}
+
+let validateEmail = () => {
+  if (form.email == '') {
+    console.log('empty')
+    emailMsg.value = 'Email field is required.'
+  } else if (
+    !/^(([^<>()[\]\\.,;:\s@#!$%^&*()-_="]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@incedoinc\.com$/.test(
+      form.email
+    )
+  ) {
+    emailMsg.value = 'Please enter incedo email id'
+  } else {
+    emailMsg.value = ''
+  }
 }
 </script>
 
@@ -90,6 +119,7 @@ let clear = () => {
                     <div class="col-12 mt-1">
                       <label for="yourName" class="form-label">Your Name</label>
                       <input
+                        v-on:keyup="validateForm"
                         type="text"
                         name="name"
                         class="form-control"
@@ -102,28 +132,55 @@ let clear = () => {
                       </div>
                     </div>
 
-                    <div class="col-12 mt-2">
+                    <div class="col-12 mt-1">
+                      <label for="yourName" class="form-label">Email</label>
+                      <input
+                        v-on:keyup="validateEmail"
+                        v-on:blur="validateEmail"
+                        type="text"
+                        name="name"
+                        class="form-control"
+                        :class="`${emailMsg ? 'is-invalid' : ''}`"
+                        v-model="form.email"
+                        placeholder="Email"
+                      />
+                      <div class="invalid-feedback">
+                        {{ emailMsg }}
+                      </div>
+                    </div>
+
+                    <!-- <div
+                      class="col-12 mt-2"
+                      :class="`${errorsMsg.email ? 'was-validated' : ''}`"
+                    >
                       <label for="yourEmail" class="form-label"
                         >Your Email</label
                       >
-                      <input
-                        type="text"
-                        name="email"
-                        class="form-control"
-                        :class="`${errorsMsg.email ? 'is-invalid' : ''}`"
-                        v-model="form.email"
-                        placeholder="Email Id"
-                      />
-                      <div class="invalid-feedback">
-                        {{ errorsMsg.email }}
+
+                      <div class="input-group">
+                        <input
+                          v-on:keyup="validateForm"
+                          type="text"
+                          v-model="form.email"
+                          placeholder="Email Id"
+                          class="form-control"
+                          required=""
+                        />
+                        <span class="input-group-text" id="basic-addon2"
+                          >@incedoinc.com</span
+                        >
+                        <div class="invalid-feedback">
+                          {{ errorsMsg.email }}
+                        </div>
                       </div>
-                    </div>
+                    </div> -->
 
                     <div class="col-12 mt-2">
                       <label for="yourPassword" class="form-label"
                         >Password</label
                       >
                       <input
+                        v-on:keyup="validateForm"
                         type="password"
                         name="password"
                         class="form-control"
@@ -138,6 +195,7 @@ let clear = () => {
 
                     <div class="col-12 mt-2">
                       <input
+                        v-on:keyup="validateForm"
                         type="password"
                         name="password"
                         class="form-control"
@@ -152,7 +210,15 @@ let clear = () => {
                       </div>
                     </div>
                     <div class="col-12 mt-4">
-                      <button class="btn btn-primary w-100" type="submit">
+                      <button
+                        class="btn btn-primary w-100"
+                        type="submit"
+                        :disabled="disabledEvent || emailMsg != ''"
+                      >
+                        <span
+                          v-if="disabledEvent"
+                          class="spinner-grow spinner-grow-sm"
+                        ></span>
                         Create Account
                       </button>
                     </div>

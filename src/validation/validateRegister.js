@@ -9,13 +9,13 @@ const validateRegister = data => {
     errors.username = 'Name field is required.'
   }
 
-  if (validator.isEmpty(email)) {
-    errors.email = 'Email field is required.'
-  }
+  // if (validator.isEmpty(email)) {
+  //   errors.email = 'Email field is required.'
+  // }
 
-  if (!validator.isEmail(email)) {
-    errors.email = 'Please enter a valid email address.'
-  }
+  // if (!validator.isEmail(email)) {
+  //   errors.email = 'Please enter a valid email address.'
+  // }
 
   if (validator.isEmpty(password)) {
     errors.password = 'Password field is required.'

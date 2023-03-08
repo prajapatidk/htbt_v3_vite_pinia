@@ -1,11 +1,17 @@
 <script setup>
 import { RouterLink, useRouter } from 'vue-router'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
+import * as XLSX from 'xlsx'
+import axios from 'axios'
 import { useUserStore } from '../../stores/user'
+import { useResourceStore } from '../../stores/resource'
 
+let resourceStr = useResourceStore()
 let router = useRouter()
 let store = useUserStore()
+let disabledEvent = ref(false)
 let userDetail = ref({})
+let formData = reactive()
 
 onMounted(() => {
   checkActiveUser()
@@ -19,8 +25,27 @@ let checkActiveUser = async () => {
     await store.activeUser()
     userDetail.value = store.activeUserDetail
   } catch (err) {
-    console.log(err)
+    logOut()
   }
+}
+
+let importFile = event => {
+  let file = event.target.files[0]
+  formData = new FormData()
+  formData.append('file', file)
+}
+let uploadExcelFile = () => {
+  disabledEvent.value = true
+  axios
+    .post('http://localhost:7788/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    .then(() => {
+      resourceStr.fetchAll()
+      disabledEvent.value = false
+    })
 }
 
 let logOut = () => {
@@ -30,6 +55,55 @@ let logOut = () => {
 </script>
 
 <template>
+  <div
+    class="modal fade"
+    id="uploadExcelFile"
+    tabindex="-1"
+    aria-labelledby="uploadExcelFile"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Upload File</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="col-12 pt-2 pb-4">
+            <label for="inputPassword4" class="form-label">Excel File</label>
+            <input class="form-control" type="file" v-on:change="importFile" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="reset"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+
+          <button
+            class="btn btn-primary"
+            type="submit"
+            :disabled="disabledEvent"
+            @click="uploadExcelFile"
+          >
+            <span
+              v-if="disabledEvent"
+              class="spinner-grow spinner-grow-sm"
+            ></span>
+            Upload file
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="admin_layout">
     <header id="header" class="header fixed-top d-flex align-items-center">
       <div class="d-flex align-items-center justify-content-between">
@@ -41,6 +115,30 @@ let logOut = () => {
 
       <nav class="header-nav ms-auto">
         <ul class="d-flex align-items-center">
+          <li class="nav-item dropdown" v-if="userDetail.roles == 'ADMIN'">
+            <a
+              href="javascript:;"
+              class="nav-link nav-icon"
+              data-bs-toggle="modal"
+              data-bs-target="#uploadExcelFile"
+            >
+              <i class="bi bi-upload"></i>
+            </a>
+          </li>
+          <li class="nav-item dropdown" v-if="userDetail.roles == 'ADMIN'">
+            <a
+              href="http://localhost:7788/download"
+              download=""
+              class="nav-link nav-icon"
+            >
+              <i class="bi bi-download"></i>
+            </a>
+          </li>
+          <!-- <li class="nav-item dropdown" v-if="userDetail.roles == 'ADMIN'">
+            <a href="javascript:;" v-on:click="download" class="nav-link nav-icon">
+              <i class="bi bi-download"></i>
+            </a>
+          </li> -->
           <li class="nav-item dropdown pe-3">
             <a
               class="nav-link nav-profile d-flex align-items-center pe-0"
@@ -48,7 +146,7 @@ let logOut = () => {
               data-bs-toggle="dropdown"
             >
               <i class="bi bi-person-circle" style="font-size: 20px"></i>
-              <span class="d-none d-md-block ps-2">{{
+              <span class="d-none d-md-block ps-2 text-capitalize">{{
                 userDetail.username
               }}</span>
             </a>
@@ -95,23 +193,43 @@ let logOut = () => {
         </li> -->
 
         <li class="nav-item">
-          <router-link to="/" class="nav-link collapsed">
+          <router-link to="/" class="nav-link" exact-active-class="collapsed">
             <i class="bi bi-tools"></i>
             <span>Resources</span>
           </router-link>
         </li>
+
+        <li class="nav-item" v-if="userDetail.roles == 'ADMIN'">
+          <router-link
+            to="/draft-resources"
+            class="nav-link"
+            exact-active-class="collapsed"
+          >
+            <i class="bi bi-trash"></i>
+            <span>Draft Items</span>
+          </router-link>
+        </li>
+
         <li class="nav-heading">Pages</li>
 
         <!-- v-if="activeUserDetail.length && activeUserDetail[0].roles == 'admin'" -->
-        <li class="nav-item" v-if="userDetail.roles =='ADMIN'">
-          <router-link to="/users" class="nav-link collapsed">
+        <li class="nav-item" v-if="userDetail.roles == 'ADMIN'">
+          <router-link
+            to="/users"
+            class="nav-link"
+            exact-active-class="collapsed"
+          >
             <i class="bi bi-people"></i>
             <span>Users</span>
           </router-link>
         </li>
 
         <li class="nav-item">
-          <router-link to="/profile" class="nav-link collapsed">
+          <router-link
+            to="/profile"
+            class="nav-link"
+            exact-active-class="collapsed"
+          >
             <i class="bi bi-person"></i>
             <span>Profile</span>
           </router-link>
@@ -140,7 +258,6 @@ let logOut = () => {
 </template>
 <style>
 .admin_layout {
-  font-family: 'Open Sans', sans-serif;
   background: #f6f9ff;
   color: #444444;
 }

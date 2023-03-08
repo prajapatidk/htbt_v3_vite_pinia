@@ -8,9 +8,23 @@
 /*--------------------------------------------------------------
 # General
 --------------------------------------------------------------*/
+
+body{
+  font-family: 'Recursive', sans-serif !important;
+}
 :root {
   scroll-behavior: smooth;
 }
+
+.form-control.is-valid, .was-validated .form-control:valid{
+  border: 1px solid #ced4da;
+  background-image: none;
+}
+.form-control.is-valid:focus, .was-validated .form-control:valid:focus{
+  border-color: none;
+  box-shadow: none;
+}
+
 
 body {
   font-family: "Open Sans", sans-serif;
@@ -535,7 +549,7 @@ h1, h2, h3, h4, h5, h6 {
   top: 60px;
   left: 0;
   bottom: 0;
-  width: 300px;
+  width: 260px;
   z-index: 996;
   transition: all 0.3s;
   padding: 20px;
@@ -547,7 +561,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 @media (max-width: 1199px) {
   .sidebar {
-    left: -300px;
+    left: -260px;
   }
 }
 .sidebar::-webkit-scrollbar {
@@ -561,7 +575,7 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (min-width: 1200px) {
   #main, #footer {
-    margin-left: 300px;
+    margin-left: 260px;
   }
 }
 @media (max-width: 1199px) {
@@ -601,25 +615,25 @@ h1, h2, h3, h4, h5, h6 {
 .sidebar-nav .nav-link {
   display: flex;
   align-items: center;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
-  color: #4154f1;
+  color: #012970;
+  background: #fff;
   transition: 0.3;
-  background: #f6f9ff;
   padding: 10px 15px;
   border-radius: 4px;
 }
 .sidebar-nav .nav-link i {
   font-size: 16px;
   margin-right: 10px;
-  color: #4154f1;
+  color: #899bbd;
 }
 .sidebar-nav .nav-link.collapsed {
-  color: #012970;
-  background: #fff;
+  color: #4154f1;
+  background: #f6f9ff;
 }
 .sidebar-nav .nav-link.collapsed i {
-  color: #899bbd;
+  color: #4154f1;
 }
 .sidebar-nav .nav-link:hover {
   color: #4154f1;

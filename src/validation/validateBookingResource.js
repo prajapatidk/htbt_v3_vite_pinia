@@ -3,7 +3,7 @@ import validator from 'validator'
 const validateBookingResource = bookform => {
   let errors = {}
 
-  const { dateIn, dateOut, team } = bookform
+  const { dateIn, dateOut, team, description } = bookform
 
   if (validator.isEmpty(dateIn)) {
     errors.dateIn = 'Please select booking date.'
@@ -15,6 +15,10 @@ const validateBookingResource = bookform => {
 
   if (validator.isEmpty(team)) {
     errors.team = 'Please select the team.'
+  }
+
+  if (validator.isEmpty(description)) {
+    errors.description = 'Description select the team.'
   }
 
   return {

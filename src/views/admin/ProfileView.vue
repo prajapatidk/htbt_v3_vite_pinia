@@ -1,12 +1,13 @@
 <script setup>
-import validateRegister from '@/validation/validateRegister'
-import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { reactive, ref, onMounted } from 'vue'
 import { useUserStore } from '../../stores/user'
 import { useResourceStore } from '../../stores/resource'
+import { confirmationMsg } from '@/utils/constant'
 
-const userStore = useUserStore()
-const resourceStore = useResourceStore()
+let routeName = useRouter().currentRoute.value.name
+let userStore = useUserStore()
+let resourceStore = useResourceStore()
 let errorsMsg = ref({})
 let serverMsg = reactive({ type: '', msg: '' })
 let mode = ref(false)
@@ -19,7 +20,7 @@ onMounted(() => {
 
 const removeResource = async id => {
   try {
-    if (confirm('Do want to release the resource') == true) {
+    if (confirm(confirmationMsg.release) == true) {
       const result = await resourceStore.releaseResource(id)
     }
   } catch (err) {
@@ -32,12 +33,10 @@ const removeResource = async id => {
 </script>
 
 <template>
-  <div
-    class="d-flex justify-content-between pagetitle pb-2"
-    style="height: 32px"
-  >
+  <div class="d-flex align-items-center pagetitle pb-2" style="height: 32px">
+    <h1>Manage {{ routeName }}</h1>
     <p
-      class="m-0"
+      class="m-0 mt-1 mx-3 text-success"
       :class="serverMsg.type == 'success' ? 'text-success' : 'text-danger'"
     >
       {{ serverMsg.msg }}
@@ -117,7 +116,7 @@ const removeResource = async id => {
                     class="btn btn-secondary"
                     @click="formOpen"
                   >
-                    Cencel
+                    Cancel
                   </button>
                   <button type="submit" class="btn btn-primary ms-3">
                     {{ !editId ? 'Save' : 'Update' }}
@@ -135,7 +134,7 @@ const removeResource = async id => {
 
               <div class="row">
                 <div class="col-lg-3 col-md-4 label">Name</div>
-                <div class="col-lg-9 col-md-8">
+                <div class="col-lg-9 col-md-8 text-capitalize">
                   {{ userStore.activeUserDetail.username }}
                 </div>
               </div>
@@ -144,6 +143,13 @@ const removeResource = async id => {
                 <div class="col-lg-3 col-md-4 label">Email</div>
                 <div class="col-lg-9 col-md-8">
                   {{ userStore.activeUserDetail.email }}
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-lg-3 col-md-4 label">Role</div>
+                <div class="col-lg-9 col-md-8">
+                  {{ userStore.activeUserDetail.roles }}
                 </div>
               </div>
             </div>
@@ -177,11 +183,11 @@ const removeResource = async id => {
                   <td>{{ item.ipAddress }}</td>
                   <td>
                     <button
-                      v-on:click="removeResource(item.id)"
                       type="button"
-                      class="btn btn-sm btn-danger mx-1"
+                      v-on:click="removeResource(item.id)"
+                      class="btn btn-primary rounded-pill"
                     >
-                      <i class="bi bi-trash"></i>
+                      Release
                     </button>
                   </td>
                 </tr>

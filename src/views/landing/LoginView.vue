@@ -11,6 +11,7 @@ const router = useRouter()
 // Declare the variable
 let errorsMsg = ref({})
 let responseMsg = ref({})
+let disabledEvent = ref(false)
 let form = reactive({
   email: '',
   password: ''
@@ -36,6 +37,7 @@ async function loginUser () {
       return (errorsMsg.value = errors)
     }
     errorsMsg.value = {}
+    disabledEvent.value = true
 
     let response = await axios.post(
       'http://localhost:7788/login',
@@ -43,13 +45,15 @@ async function loginUser () {
       avoidHeader
     )
     localStorage.setItem('token', response.data.jwtToken)
+    disabledEvent.value = false
     // router.push('/')
     window.location = '/'
     clear()
   } catch (err) {
+    disabledEvent.value = false
     responseMsg.value = {
       type: 'failed',
-      msg: err.response.data.message
+      msg: 'Bad credentials or Please check your mail to activate account'
     }
   }
 }
@@ -143,7 +147,15 @@ let clear = () => {
                       </div>
                     </div>
                     <div class="col-12">
-                      <button class="btn btn-primary w-100" type="submit">
+                      <button
+                        class="btn btn-primary w-100"
+                        type="submit"
+                        :disabled="disabledEvent"
+                      >
+                        <span
+                          v-if="disabledEvent"
+                          class="spinner-grow spinner-grow-sm"
+                        ></span>
                         Login
                       </button>
                     </div>

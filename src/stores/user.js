@@ -18,6 +18,9 @@ export const useUserStore = defineStore('users', {
 
     async addUser (payload) {
       const response = await axios.post('register', payload, avoidHeader)
+      if (response) {
+        this.fetchUser()
+      }
       return response
     },
 
