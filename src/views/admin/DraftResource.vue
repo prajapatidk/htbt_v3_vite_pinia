@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../../stores/user'
 import { useResourceStore } from '../../stores/resource'
@@ -11,6 +11,7 @@ let userStr = useUserStore()
 let resourceStr = useResourceStore()
 let userDetail = ref({})
 let responseMsg = ref({})
+let search = ref('')
 
 onMounted(() => {
   resourceStr.fetchAlldraft()
@@ -25,7 +26,7 @@ let checkActiveUser = async () => {
   }
 }
 
-let deleteResource = async id => {
+let restoreResource = async id => {
   try {
     if (confirm(confirmationMsg.restore) == true) {
       let result = await resourceStr.restoreResource(id)
@@ -43,6 +44,40 @@ let deleteResource = async id => {
     }
   }
 }
+
+let deleteResource = async id => {
+  try {
+    if (confirm(confirmationMsg.delete) == true) {
+      let result = await resourceStr.deleteResource(id)
+      if (result.status == 200) {
+        responseMsg.value = {
+          type: msgType.success,
+          msg: result.data
+        }
+      }
+    }
+  } catch (err) {
+    responseMsg.value = {
+      type: msgType.failed,
+      msg: err.response.data.message
+    }
+  }
+}
+
+const resourceData = computed(() => {
+  return search.value
+    ? resourceStr.draftResources.filter(
+        item =>
+          item.name.toLowerCase().includes(search.value) ||
+          item.type.toLowerCase().includes(search.value) ||
+          item.ipAddress.toLowerCase().includes(search.value) ||
+          item.console.toLowerCase().includes(search.value) ||
+          item.mgmtport.toLowerCase().includes(search.value) ||
+          item.model.toLowerCase().includes(search.value) ||
+          item.aca.toLowerCase().includes(search.value)
+      )
+    : resourceStr.draftResources
+})
 </script>
 
 <template>
@@ -60,6 +95,15 @@ let deleteResource = async id => {
       <div class="col-lg-12" style="min-height: calc(100vh - 125px)">
         <div class="card">
           <div class="card-body py-3">
+            <div class="d-flex justify-content-end py-3">
+              <div class="col-auto">
+                <input
+                  type="text"
+                  class="form-control ml-auto"
+                  v-model="search"
+                />
+              </div>
+            </div>
             <!-- Table with stripped rows -->
             <div class="table-responsive" style="max-height: 75vh">
               <table class="table table-striped" style="vertical-align: middle">
@@ -80,8 +124,8 @@ let deleteResource = async id => {
                 </thead>
                 <tbody>
                   <tr
-                    v-if="resourceStr.draftResources.length > 0"
-                    v-for="(item, index) in resourceStr.draftResources"
+                    v-if="resourceData.length > 0"
+                    v-for="(item, index) in resourceData"
                     :key="item.id"
                   >
                     <td>{{ index + 1 }}</td>
@@ -97,9 +141,16 @@ let deleteResource = async id => {
                         :disabled="item.status == 2"
                         type="button"
                         class="btn btn-sm btn-success mx-1"
-                        @click="deleteResource(item.id)"
+                        @click="restoreResource(item.id)"
                       >
                         Restore
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-danger mx-1"
+                        @click="deleteResource(item.id)"
+                      >
+                        <i class="bi bi-trash"></i>
                       </button>
                     </td>
                   </tr>

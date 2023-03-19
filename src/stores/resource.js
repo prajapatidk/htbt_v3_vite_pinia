@@ -56,10 +56,18 @@ export const useResourceStore = defineStore('resources', {
       return response
     },
 
+    async sdResource (id) {
+      const response = await axios.delete(`sdresource/${id}`, token)
+      if (response) {
+        this.fetchAll()
+      }
+      return response
+    },
+
     async deleteResource (id) {
       const response = await axios.delete(`resource/${id}`, token)
       if (response) {
-        this.fetchAll()
+        this.fetchAlldraft()
       }
       return response
     },

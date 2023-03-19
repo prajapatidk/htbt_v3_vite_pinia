@@ -107,10 +107,10 @@ let logOut = () => {
   <div class="admin_layout">
     <header id="header" class="header fixed-top d-flex align-items-center">
       <div class="d-flex align-items-center justify-content-between">
-        <a href="index.html" class="logo d-flex align-items-center">
+        <router-link to="/" class="logo d-flex align-items-center">
           <img src="@/assets/img/hrbt.webp" alt="" />
           <span class="d-none d-lg-block">HRBT</span>
-        </a>
+        </router-link>
       </div>
 
       <nav class="header-nav ms-auto">
@@ -185,15 +185,15 @@ let logOut = () => {
     </header>
     <aside id="sidebar" class="sidebar">
       <ul class="sidebar-nav" id="sidebar-nav">
-        <!-- <li class="nav-item">
-          <router-link to="/" class="nav-link collapsed">
-            <i class="bi bi-grid"></i>
-            <span>Dashboard</span>
-          </router-link>
-        </li> -->
-
         <li class="nav-item">
           <router-link to="/" class="nav-link" exact-active-class="collapsed">
+            <i class="bi bi-house-door"></i>
+            <span>Home</span>
+          </router-link>
+        </li>
+
+        <li class="nav-item">
+          <router-link to="/resource" class="nav-link" exact-active-class="collapsed">
             <i class="bi bi-tools"></i>
             <span>Resources</span>
           </router-link>

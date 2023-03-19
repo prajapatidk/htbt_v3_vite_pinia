@@ -89,7 +89,7 @@ let validateEmail = () => {
         <div class="container">
           <div class="row justify-content-center">
             <div
-              style="min-width: 432px"
+              style="min-width: 450px"
               class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center"
             >
               <div class="d-flex justify-content-center py-4">
@@ -234,8 +234,8 @@ let validateEmail = () => {
                     </p>
                     <div class="col-12">
                       <p class="small mb-0">
-                        <router-link to="/sign-in">
-                          Already have an account?</router-link
+                        Already have an<router-link to="/sign-in">
+                          account?</router-link
                         >
                       </p>
                     </div>

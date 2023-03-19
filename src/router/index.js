@@ -7,6 +7,7 @@ import ResourceList from "../views/admin/ResourceList.vue";
 import DraftResource from "../views/admin/DraftResource.vue";
 import UserList from "../views/admin/UserList.vue";
 import ProfileView from "../views/admin/ProfileView.vue";
+import ForgetPassword from "../views/landing/ForgetPassword.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,17 +23,22 @@ const router = createRouter({
       component: RegisterView,
     },
     {
+      path: "/forget-password",
+      name: "Forget Password",
+      component: ForgetPassword,
+    },
+    {
       path: "/",
       name: "Admin",
       component: AdminLayout,
       children: [
-        // {
-        //   path: "",
-        //   name: "Dashboard",
-        //   component: DashboardView,
-        // },
         {
-          path: "/",
+          path: "",
+          name: "Dashboard",
+          component: DashboardView,
+        },
+        {
+          path: "/resource",
           name: "Resources",
           component: ResourceList,
         },

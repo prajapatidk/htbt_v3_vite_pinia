@@ -1,7 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import validateRegister from '@/validation/validateRegister'
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, computed } from 'vue'
 import { useUserStore } from '../../stores/user'
 import { roles } from '@/utils/constant'
 
@@ -13,6 +13,7 @@ let errorsMsg = ref({})
 let serverMsg = reactive({ type: '', msg: '' })
 let mode = ref(false)
 let editId = ref(null)
+let search = ref('')
 
 let form = reactive({
   username: '',
@@ -115,6 +116,17 @@ let clear = () => {
   form.password = ''
   form.confirmPassword = ''
 }
+
+const userData = computed(() => {
+  return search.value
+    ? store.users.filter(
+        item =>
+          item.username.toLowerCase().includes(search.value) ||
+          item.email.toLowerCase().includes(search.value) ||
+          item.roles.toLowerCase().includes(search.value)
+      )
+    : store.users
+})
 </script>
 
 <template>
@@ -233,7 +245,7 @@ let clear = () => {
             </form>
           </div>
           <div class="card-body" v-else>
-            <div class="d-flex align-items-center py-3">
+            <div class="d-flex justify-content-between py-3">
               <button
                 class="btn btn-success btn-sm"
                 type="button"
@@ -242,6 +254,9 @@ let clear = () => {
                 <i class="bi bi-plus-circle" style="margin-right: 5px"></i>
                 Add User
               </button>
+              <div class="col-auto">
+                <input type="text" class="form-control" v-model="search" />
+              </div>
             </div>
             <!-- Table with stripped rows -->
             <table class="table table-striped" style="vertical-align: middle">
@@ -256,9 +271,9 @@ let clear = () => {
               </thead>
               <tbody>
                 <tr
-                  v-for="(item, index) in store.users"
+                  v-for="(item, index) in userData"
                   :key="item.id"
-                  v-if="store.users.length > 0"
+                  v-if="userData.length > 0"
                 >
                   <td>{{ index + 1 }}</td>
                   <td class="text-capitalize">{{ item.username }}</td>
@@ -269,7 +284,6 @@ let clear = () => {
                       type="button"
                       class="btn btn-sm btn-secondary mx-1"
                       @click="editUser(item.id)"
-                      :title="item.id"
                     >
                       <i class="bi bi-pencil-fill"></i>
                     </button>

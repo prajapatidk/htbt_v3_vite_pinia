@@ -79,7 +79,7 @@ let clear = () => {
         <div class="container">
           <div class="row justify-content-center">
             <div
-              style="min-width: 450px"
+              style="min-width: 432px"
               class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center"
             >
               <div class="d-flex justify-content-center py-4">
@@ -96,10 +96,10 @@ let clear = () => {
                 <div class="card-body">
                   <div class="pt-4 pb-2">
                     <h5 class="card-title text-center pb-0 fs-4">
-                      Login to Your Account
+                      Forget Password
                     </h5>
                     <p class="text-center small">
-                      Enter your username &amp; password to login
+                      Enter your email id to get password
                     </p>
                   </div>
 
@@ -109,7 +109,7 @@ let clear = () => {
                   >
                     <div class="col-12">
                       <label for="yourUsername" class="form-label"
-                        >Username</label
+                        >Email id</label
                       >
                       <input
                         type="text"
@@ -121,38 +121,7 @@ let clear = () => {
                         {{ errorsMsg.email }}
                       </div>
                     </div>
-
-                    <div class="col-12">
-                      <label for="yourPassword" class="form-label"
-                        >Password</label
-                      >
-                      <input
-                        :type="showPass == true ? 'text' : 'password'"
-                        class="form-control"
-                        :class="`${errorsMsg.password ? 'is-invalid' : ''}`"
-                        v-model="form.password"
-                      />
-                      <div class="invalid-feedback">
-                        {{ errorsMsg.password }}
-                      </div>
-                    </div>
-
-                    <div class="col-12">
-                      <div class="form-check">
-                        <input
-                          class="form-check-input"
-                          type="checkbox"
-                          name="remember"
-                          value="true"
-                          id="rememberMe"
-                          @click="showPassword"
-                        />
-                        <label class="form-check-label" for="rememberMe"
-                          >Show password</label
-                        >
-                      </div>
-                    </div>
-                    <div class="col-12">
+                    <div class="col-12 pt-2">
                       <button
                         class="btn btn-primary w-100"
                         type="submit"
@@ -162,7 +131,7 @@ let clear = () => {
                           v-if="disabledEvent"
                           class="spinner-grow spinner-grow-sm"
                         ></span>
-                        Login
+                        Get Password
                       </button>
                     </div>
                     <p
@@ -177,10 +146,9 @@ let clear = () => {
                     </p>
                     <div class="col-12">
                       <p class="small mb-0">
-                        Don't have account?
-                        <router-link to="/sign-up"> Create account</router-link>
-                        or
-                        <router-link to="/forget-password">forget password?</router-link>
+                        Already have an<router-link to="/sign-in">
+                          account?</router-link
+                        >
                       </p>
                     </div>
                   </form>

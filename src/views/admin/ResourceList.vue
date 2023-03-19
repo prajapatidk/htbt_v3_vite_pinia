@@ -2,7 +2,7 @@
 import validateResource from '@/validation/validateResource'
 import validateBookingResource from '@/validation/validateBookingResource'
 import { useRouter } from 'vue-router'
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, computed } from 'vue'
 import { useUserStore } from '../../stores/user'
 import { useResourceStore } from '../../stores/resource'
 import { msgType, confirmationMsg, team } from '@/utils/constant'
@@ -17,6 +17,7 @@ let mode = ref(false)
 let disabledEvent = ref(false)
 let editId = ref(null)
 let bookId = ref(null)
+let search = ref('')
 
 let form = reactive({
   name: '',
@@ -129,7 +130,7 @@ let bookResource = async () => {
 let deleteResource = async id => {
   try {
     if (confirm(confirmationMsg.delete) == true) {
-      let result = await resourceStr.deleteResource(id)
+      let result = await resourceStr.sdResource(id)
       if (result.status == 200) {
         responseMsg.value = {
           type: msgType.success,
@@ -179,6 +180,21 @@ let clear = () => {
     (bookform.team = ''),
     (bookform.description = '')
 }
+
+const resourceData = computed(() => {
+  return search.value
+    ? resourceStr.resources.filter(
+        item =>
+          item.name.toLowerCase().includes(search.value) ||
+          item.type.toLowerCase().includes(search.value) ||
+          item.ipAddress.toLowerCase().includes(search.value) ||
+          item.console.toLowerCase().includes(search.value) ||
+          item.mgmtport.toLowerCase().includes(search.value) ||
+          item.model.toLowerCase().includes(search.value) ||
+          item.aca.toLowerCase().includes(search.value)
+      )
+    : resourceStr.resources
+})
 </script>
 
 <template>
@@ -310,7 +326,71 @@ let clear = () => {
           ></button>
         </div>
         <div class="modal-body">
-          {{ resourceStr.itemDetails.name }}
+          <div class="row">
+            <div class="col-md-3">Name</div>
+            <div class="col-md-9">{{ resourceStr.itemDetails.name }}</div>
+
+            <div class="col-md-3 pt-2">Type</div>
+            <div class="col-md-9 pt-2">{{ resourceStr.itemDetails.type }}</div>
+
+            <div class="col-md-3 pt-2">IP Address</div>
+            <div class="col-md-9 pt-2">
+              {{ resourceStr.itemDetails.ipAddress }}
+            </div>
+
+            <div class="col-md-3 pt-2">Console</div>
+            <div class="col-md-9 pt-2">
+              {{ resourceStr.itemDetails.console }}
+            </div>
+
+            <div class="col-md-3 pt-2">MGMT Port</div>
+            <div class="col-md-9 pt-2">
+              {{ resourceStr.itemDetails.mgmtport }}
+            </div>
+
+            <div class="col-md-3 pt-2">Model</div>
+            <div class="col-md-9 pt-2">{{ resourceStr.itemDetails.model }}</div>
+
+            <div class="col-md-3 pt-2">ACA</div>
+            <div class="col-md-9 pt-2">{{ resourceStr.itemDetails.aca }}</div>
+
+            <div class="col-md-3 pt-2">Status</div>
+            <div class="col-md-9 pt-2">
+              {{ resourceStr.itemDetails.status == 1 ? 'Available' : 'Booked' }}
+            </div>
+
+            <div
+              class="col-md-3 pt-2"
+              v-if="resourceStr.itemDetails.bookingname"
+            >
+              Booked By
+            </div>
+            <div
+              class="col-md-9 pt-2"
+              v-if="resourceStr.itemDetails.bookingname"
+            >
+              {{ resourceStr.itemDetails.bookingname }},
+              {{ resourceStr.itemDetails.bookingemailId }}
+            </div>
+
+            <div class="col-md-3 pt-2" v-if="resourceStr.itemDetails.dateIn">
+              Period
+            </div>
+            <div class="col-md-9 pt-2" v-if="resourceStr.itemDetails.dateIn">
+              {{ resourceStr.itemDetails.dateIn }},
+              {{ resourceStr.itemDetails.dateOut }}
+            </div>
+
+            <div class="col-md-3 pt-2">Team</div>
+            <div class="col-md-9 pt-2">
+              {{ resourceStr.itemDetails.team }}
+            </div>
+
+            <div class="col-md-3 pt-2">Description</div>
+            <div class="col-md-9 pt-2">
+              {{ resourceStr.itemDetails.description }}
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button
@@ -470,7 +550,7 @@ let clear = () => {
             </form>
           </div>
           <div class="card-body" v-else>
-            <div class="d-flex align-items-center py-3">
+            <div class="d-flex justify-content-between py-3">
               <button
                 v-if="userDetail.roles == 'ADMIN'"
                 class="btn btn-success btn-sm"
@@ -480,6 +560,9 @@ let clear = () => {
                 <i class="bi bi-plus-circle" style="margin-right: 5px"></i>
                 Add Resource
               </button>
+              <div class="col-auto">
+                <input type="text" class="form-control" v-model="search" />
+              </div>
             </div>
             <!-- Table with stripped rows -->
             <div class="table-responsive" style="max-height: 75vh">
@@ -505,8 +588,8 @@ let clear = () => {
                 </thead>
                 <tbody>
                   <tr
-                    v-if="resourceStr.resources.length > 0"
-                    v-for="(item, index) in resourceStr.resources"
+                    v-if="resourceData.length > 0"
+                    v-for="(item, index) in resourceData"
                     :key="item.id"
                   >
                     <td>{{ index + 1 }}</td>
@@ -550,15 +633,15 @@ let clear = () => {
                     </td>
                     <td>{{ item.team }}</td>
                     <td v-if="userDetail.roles == 'ADMIN'">
-                      <!-- <button
+                      <button
                         type="button"
                         data-bs-toggle="modal"
                         data-bs-target="#deviceDetailsModal"
-                        class="btn btn-sm btn-danger mx-1"
+                        class="btn btn-sm btn-success mx-1"
                         @click="resourceDetail(item.id)"
                       >
                         <i class="bi bi-eye"></i>
-                      </button> -->
+                      </button>
                       <button
                         type="button"
                         class="btn btn-sm btn-secondary mx-1"
