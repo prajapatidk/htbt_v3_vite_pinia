@@ -1,52 +1,52 @@
 <script setup>
-import { useRouter } from 'vue-router'
-import { reactive, ref, onMounted, computed } from 'vue'
-import { useUserStore } from '../../stores/user'
-import { useResourceStore } from '../../stores/resource'
+import { useRouter } from "vue-router";
+import { reactive, ref, onMounted, computed } from "vue";
+import { useUserStore } from "../../stores/user";
+import { useResourceStore } from "../../stores/resource";
 
-let userStr = useUserStore()
-let resourceStr = useResourceStore()
+let userStr = useUserStore();
+let resourceStr = useResourceStore();
 
 onMounted(() => {
-  resourceStr.fetchAll()
-  resourceStr.fetchAlldraft()
-  userStr.fetchUser()
-})
+  resourceStr.fetchAll();
+  resourceStr.fetchAlldraft();
+  userStr.fetchUser();
+});
 
 // Resource
 const totalResources = computed(() => {
-  return resourceStr.resources.length
-})
+  return resourceStr.resources.length;
+});
 
 const bookedResources = computed(() => {
-  let result = resourceStr.resources.filter(item => item.status == 2)
-  return result.length
-})
+  let result = resourceStr.resources.filter((item) => item.status == 2);
+  return result.length;
+});
 
 const availableResources = computed(() => {
-  let result = resourceStr.resources.filter(item => item.status == 1)
-  return result.length
-})
+  let result = resourceStr.resources.filter((item) => item.status == 1);
+  return result.length;
+});
 
 // Draft
 const draftResources = computed(() => {
-  return resourceStr.draftResources.length
-})
+  return resourceStr.draftResources.length;
+});
 
 //Users
 const totalUsers = computed(() => {
-  return userStr.users.length
-})
+  return userStr.users.length;
+});
 
 const activeUsers = computed(() => {
-  let result = userStr.users.filter(item => item.status == "ACTIVE")
-  return result.length
-})
+  let result = userStr.users.filter((item) => item.status == "ACTIVE");
+  return result.length;
+});
 
 const inactiveUsers = computed(() => {
-  let result = userStr.users.filter(item => item.status == "INACTIVE")
-  return result.length
-})
+  let result = userStr.users.filter((item) => item.status == "INACTIVE");
+  return result.length;
+});
 </script>
 
 <template>
@@ -113,16 +113,20 @@ const inactiveUsers = computed(() => {
                   </div>
                   <div class="ps-3">
                     <h6>{{ totalUsers }}</h6>
-                    <span class="text-success small pt-1 fw-bold">{{ activeUsers }}</span>
+                    <span class="text-success small pt-1 fw-bold">{{
+                      activeUsers
+                    }}</span>
                     <span class="text-muted small pt-2 ps-1">Active</span> |
-                    <span class="text-success small pt-1 fw-bold">{{ inactiveUsers }}</span>
+                    <span class="text-success small pt-1 fw-bold">{{
+                      inactiveUsers
+                    }}</span>
                     <span class="text-muted small pt-2 ps-1">Inactive</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="col-12">
+          <!-- <div class="col-12">
             <div class="card top-selling overflow-auto">
               <div class="filter">
                 <a class="icon" href="#" data-bs-toggle="dropdown"
@@ -229,13 +233,11 @@ const inactiveUsers = computed(() => {
                 </table>
               </div>
             </div>
-          </div>
+          </div> -->
           <!-- End Customers Card -->
         </div>
       </div>
-      <div class="col-lg-4">
-        <!-- Recent Activity -->
-
+      <!-- <div class="col-lg-4">
         <div class="card">
           <div class="filter">
             <a class="icon" href="#" data-bs-toggle="dropdown"
@@ -298,11 +300,9 @@ const inactiveUsers = computed(() => {
                 </p>
               </div>
             </div>
-            <!-- End sidebar recent posts-->
           </div>
         </div>
-        <!-- End Recent Activity -->
-      </div>
+      </div> -->
     </div>
   </section>
 </template>
