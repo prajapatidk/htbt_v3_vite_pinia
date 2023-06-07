@@ -1,73 +1,69 @@
 <script setup>
-import validateLogin from '@/validation/validateLogin'
-import { RouterLink, useRouter } from 'vue-router'
-import { reactive, ref, onMounted } from 'vue'
-import axios from 'axios'
-import { avoidHeader } from '@/utils/constant'
+import validateLogin from "@/validation/validateLogin";
+import { RouterLink, useRouter } from "vue-router";
+import { reactive, ref, onMounted } from "vue";
+import axios from "axios";
+import { avoidHeader } from "@/utils/constant";
 
 // Access the stores
-const router = useRouter()
+const router = useRouter();
 
 // Declare the variable
-let errorsMsg = ref({})
-let responseMsg = ref({})
-let disabledEvent = ref(false)
-let showPass = ref(false)
+let errorsMsg = ref({});
+let responseMsg = ref({});
+let disabledEvent = ref(false);
+let showPass = ref(false);
 let form = reactive({
-  email: '',
-  password: ''
-})
+  email: "",
+  password: "",
+});
 
 // Mount functiion
 onMounted(async () => {
-  await checkActiveUser()
-})
+  await checkActiveUser();
+});
 
 // Check if user already logged in the move to dashboard page
 let checkActiveUser = async () => {
-  if (localStorage.hasOwnProperty('token')) {
-    return router.push('/')
+  if (localStorage.hasOwnProperty("token")) {
+    return router.push("/");
   }
-}
+};
 
 // Login authentication of the user
-async function loginUser () {
+async function loginUser() {
   try {
-    let { isInvalid, errors } = await validateLogin(form)
+    let { isInvalid, errors } = await validateLogin(form);
     if (isInvalid) {
-      return (errorsMsg.value = errors)
+      return (errorsMsg.value = errors);
     }
-    errorsMsg.value = {}
-    disabledEvent.value = true
+    errorsMsg.value = {};
+    disabledEvent.value = true;
 
-    let response = await axios.post(
-      'http://localhost:7788/login',
-      form,
-      avoidHeader
-    )
-    localStorage.setItem('token', response.data.jwtToken)
-    disabledEvent.value = false
+    let response = await axios.post("login", form, avoidHeader);
+    localStorage.setItem("token", response.data.jwtToken);
+    disabledEvent.value = false;
     // router.push('/')
-    window.location = '/'
-    clear()
+    window.location = "/";
+    clear();
   } catch (err) {
-    disabledEvent.value = false
+    disabledEvent.value = false;
     responseMsg.value = {
-      type: 'failed',
-      msg: 'Bad credentials or Please check your mail to activate account'
-    }
+      type: "failed",
+      msg: "Bad credentials or Please check your mail to activate account",
+    };
   }
 }
 
-function showPassword () {
-  showPass.value = !showPass.value
+function showPassword() {
+  showPass.value = !showPass.value;
 }
 
 // Clear the filled inputs
 let clear = () => {
-  form.email = ''
-  form.password = ''
-}
+  form.email = "";
+  form.password = "";
+};
 </script>
 
 <template>

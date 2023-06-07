@@ -1,57 +1,57 @@
 <script setup>
-import { RouterLink, useRouter } from 'vue-router'
-import { ref, onMounted, reactive } from 'vue'
-import * as XLSX from 'xlsx'
-import axios from 'axios'
-import { useUserStore } from '../../stores/user'
-import { useResourceStore } from '../../stores/resource'
+import { RouterLink, useRouter } from "vue-router";
+import { ref, onMounted, reactive } from "vue";
+import * as XLSX from "xlsx";
+import axios from "axios";
+import { useUserStore } from "../../stores/user";
+import { useResourceStore } from "../../stores/resource";
 
-let resourceStr = useResourceStore()
-let router = useRouter()
-let store = useUserStore()
-let disabledEvent = ref(false)
-let userDetail = ref({})
-let formData = reactive()
+let resourceStr = useResourceStore();
+let router = useRouter();
+let store = useUserStore();
+let disabledEvent = ref(false);
+let userDetail = ref({});
+let formData = reactive();
 
 onMounted(() => {
-  checkActiveUser()
-})
+  checkActiveUser();
+});
 
 let checkActiveUser = async () => {
   try {
-    if (!localStorage.hasOwnProperty('token')) {
-      return router.push('/sign-in')
+    if (!localStorage.hasOwnProperty("token")) {
+      return router.push("/sign-in");
     }
-    await store.activeUser()
-    userDetail.value = store.activeUserDetail
+    await store.activeUser();
+    userDetail.value = store.activeUserDetail;
   } catch (err) {
-    logOut()
+    logOut();
   }
-}
+};
 
-let importFile = event => {
-  let file = event.target.files[0]
-  formData = new FormData()
-  formData.append('file', file)
-}
+let importFile = (event) => {
+  let file = event.target.files[0];
+  formData = new FormData();
+  formData.append("file", file);
+};
 let uploadExcelFile = () => {
-  disabledEvent.value = true
+  disabledEvent.value = true;
   axios
-    .post('http://localhost:7788/upload', formData, {
+    .post("upload", formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        "Content-Type": "multipart/form-data",
+      },
     })
     .then(() => {
-      resourceStr.fetchAll()
-      disabledEvent.value = false
-    })
-}
+      resourceStr.fetchAll();
+      disabledEvent.value = false;
+    });
+};
 
 let logOut = () => {
-  localStorage.removeItem('token')
-  router.push('/sign-in')
-}
+  localStorage.removeItem("token");
+  router.push("/sign-in");
+};
 </script>
 
 <template>
@@ -193,7 +193,11 @@ let logOut = () => {
         </li>
 
         <li class="nav-item">
-          <router-link to="/resource" class="nav-link" exact-active-class="collapsed">
+          <router-link
+            to="/resource"
+            class="nav-link"
+            exact-active-class="collapsed"
+          >
             <i class="bi bi-tools"></i>
             <span>Resources</span>
           </router-link>
